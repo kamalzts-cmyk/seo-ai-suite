@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ app_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="page">
+    <header class="hero">
+        <div class="badge">Free API Version</div>
+        <h1>Z Rank AI</h1>
+        <p>Google ranking checker agent powered by Serper.dev free API.</p>
+        {% if api_ready %}
+            <div class="status good">API Connected</div>
+        {% else %}
+            <div class="status bad">SERPER_API_KEY Missing</div>
+        {% endif %}
+    </header>
+
+    <main class="card">
+        <form method="POST">
+            <div class="grid">
+                <div>
+                    <label>Target Domain</label>
+                    <input type="text" name="domain" placeholder="ztsindia.com" value="{{ domain }}" required>
+                </div>
+                <div>
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="India / United States / Dubai" value="{{ location }}">
+                </div>
+                <div>
+                    <label>Country Code</label>
+                    <input type="text" name="gl" placeholder="in / us / ae / uk" value="{{ gl }}">
+                </div>
+                <div>
+                    <label>Language Code</label>
+                    <input type="text" name="hl" placeholder="en" value="{{ hl }}">
+                </div>
+            </div>
+
+            <label>Keywords</label>
+            <textarea name="keywords" rows="10" placeholder="Enter one keyword per line" required>{{ keywords_text }}</textarea>
+
+            <button type="submit">Check Rankings</button>
+        </form>
+    </main>
+
+    {% if results %}
+    <section class="card">
+        <div class="results-head">
+            <h2>Ranking Report</h2>
+            <form method="POST" action="/export">
+                <input type="hidden" name="results_json" value='{{ results | tojson }}'>
+                <button type="submit" class="secondary">Export CSV</button>
+            </form>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Keyword</th>
+                        <th>Rank</th>
+                        <th>Found URL</th>
+                        <th>SERP Features</th>
+                        <th>Checked</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in results %}
+                    <tr>
+                        <td>{{ row.keyword }}</td>
+                        <td><strong>{{ row.rank }}</strong></td>
+                        <td class="url">{{ row.found_url }}</td>
+                        <td>{{ row.serp_features }}</td>
+                        <td>{{ row.checked_at }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="note">
+        <strong>Important:</strong> This agent uses Serper.dev API instead of risky direct Google scraping.
+    </section>
+</div>
+</body>
+</html>
